@@ -569,6 +569,23 @@ document.addEventListener("DOMContentLoaded", () => {
         `
         }
       </div>
+      <div class="share-section">
+        <span class="share-label">Share:</span>
+        <div class="share-buttons">
+          <button class="share-btn share-twitter tooltip" data-activity="${name}" aria-label="Share on X (Twitter)">
+            𝕏
+            <span class="tooltip-text">Share on X (Twitter)</span>
+          </button>
+          <button class="share-btn share-whatsapp tooltip" data-activity="${name}" aria-label="Share on WhatsApp">
+            💬
+            <span class="tooltip-text">Share on WhatsApp</span>
+          </button>
+          <button class="share-btn share-copy tooltip" data-activity="${name}" aria-label="Copy link">
+            🔗
+            <span class="tooltip-text">Copy link</span>
+          </button>
+        </div>
+      </div>
     `;
 
     // Add click handlers for delete buttons
@@ -586,6 +603,43 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     }
+
+    // Add click handlers for share buttons
+    const shareText = `Check out "${name}" at Mergington High School! ${details.description} Schedule: ${formattedSchedule}`;
+    const shareUrl = window.location.href;
+
+    activityCard.querySelector(".share-twitter").addEventListener("click", () => {
+      const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+      window.open(tweetUrl, "_blank", "noopener,noreferrer");
+    });
+
+    activityCard.querySelector(".share-whatsapp").addEventListener("click", () => {
+      const waUrl = `https://wa.me/?text=${encodeURIComponent(shareText + " " + shareUrl)}`;
+      window.open(waUrl, "_blank", "noopener,noreferrer");
+    });
+
+    activityCard.querySelector(".share-copy").addEventListener("click", (event) => {
+      const copyText = shareText + " " + shareUrl;
+      navigator.clipboard.writeText(copyText).then(() => {
+        const btn = event.currentTarget;
+        const originalLabel = btn.getAttribute("aria-label");
+        btn.setAttribute("aria-label", "Copied!");
+        const tooltipText = btn.querySelector(".tooltip-text");
+        const originalTooltip = tooltipText.textContent;
+        tooltipText.textContent = "Copied!";
+        setTimeout(() => {
+          btn.setAttribute("aria-label", originalLabel);
+          tooltipText.textContent = originalTooltip;
+        }, 2000);
+      }).catch(() => {
+        const tooltipText = event.currentTarget.querySelector(".tooltip-text");
+        const originalTooltip = tooltipText.textContent;
+        tooltipText.textContent = "Failed to copy";
+        setTimeout(() => {
+          tooltipText.textContent = originalTooltip;
+        }, 2000);
+      });
+    });
 
     activitiesList.appendChild(activityCard);
   }
